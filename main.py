@@ -1,5 +1,13 @@
+""" control the LED floor with OSC messages
+"""
+
 import ledfloor as lf
 import neopixel as neo
+import OSC
+import time
+from time import sleep
+import random
+import osccontroller as oc
 
 board_height = 11
 board_width = 11
@@ -17,22 +25,48 @@ LED_STRIP      = neo.ws.WS2811_STRIP_GRB
 strip = neo.Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA,
     LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_STRIP)
 
-floor = lf.LedFloor(strip, board_height, board_width, flip_x=False)
-
-# some default colors 
-white = neo.Color(255, 255, 255)
-black = neo.Color(0, 0, 0)
-red   = neo.Color(255, 0, 0)
-green = neo.Color(0, 255, 0)
-blue  = neo.Color(0, 0, 255)
-pink  = neo.Color(255, 102, 178)
+floor = lf.LedFloor(strip, board_height, board_width, flip_x=True)
 
 floor.clear()
-floor.demo()
+floor.axis_test()
+sleep(2)
+floor.clear()
+#sleep(1)
+#floor.demo() # rainbow demo, runs forever
 
-#floor.set_all(pink)
-#floor.set([0,0], red)
-#floor.set([1,1], green)
-#floor.set([1,2], blue)
-#floor.draw()
 
+# create server (not started yet)
+server = oc.create_osc_server('10.90.154.80', 4559)
+
+# register handlers for OSC messages
+# (More a proof of concept than anything at the moment....)
+def position_handler(addr, tags, data, source):
+    # takes an xy coordinate and draws a cross to that coordinate
+    global cross_color
+    x = int(round(data[0],0))
+    y = int(round(data[1],0))
+
+    coord = [x, y]
+    color = cross_color #random.choice([lf.electric, lf.tiger, lf.teal, lf.lime])
+
+    floor.clear()
+    floor.set(floor.get_column_coords(x), [color]*floor.height) 
+    floor.set(floor.get_row_coords(y), [color]*floor.width)   
+    floor.draw()
+
+
+def shoot_handler(addr, tags, data, source):
+    global cross_color
+    cross_color = lf.tiger
+    sleep(1)
+    cross_color = lf.electric
+
+
+cross_color = lf.electric
+  
+server.addMsgHandler("/set", position_handler)
+server.addMsgHandler("/shoot", shoot_handler)
+oc.print_handlers(server) # Did it work?
+
+# Let's go!
+oc.start_osc_server(server)
