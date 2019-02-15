@@ -1,5 +1,6 @@
 """ control the LED floor with OSC messages
 """
+import sys; print(sys.path)
 
 import ledfloor as lf
 import neopixel as neo

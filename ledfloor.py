@@ -7,10 +7,14 @@ from time import sleep
 import colorsys as cs
 import math
 import numpy as np
-import graphics  # graphics.py
 import random
 from math import sqrt
 #import colorutils as cu
+
+try: 
+    import graphics  # graphics.py
+except:
+    pass
 
 # some default colors 
 # white    = Color(255, 255, 255)
@@ -187,15 +191,12 @@ class LedFloor:
     def flatten_colors(self):
         ''' flatten all layers using color blending
         '''
-        # TODO; Add layers from bottom to top
-        a = self.layers[0].colors
-        b = self.layers[1].colors
-        c = self.layers[2].colors
-        a[a == None] = Color(0,0,0,0)
-        b[b == None] = Color(0,0,0,0)
-        c[c == None] = Color(0,0,0,0)
-        flattened = np.add(a, b)
-        flattened = np.add(flattened, c)
+        flattened = self.layers[0].colors
+        flattened[flattened == None] = Color(0,0,0,0)
+        for i in range(1, len(self.layers)):
+            layer = self.layers[i].colors
+            layer[layer == None] = Color(0,0,0,0)
+            flattened = np.add(flattened, layer)
         return flattened
 
     def draw(self):
@@ -271,17 +272,16 @@ def axis_test(floor):
 
         if ly.pos[0] >= floor.width-1:
             ly.pos[0] = 0
-            ly.pos[1] = (ly.pos[1] + 1) % ly.height
+            ly.pos[1] = random.randint(0, ly.height) % ly.height
         else:
             ly.pos[0] = ly.pos[0] + 1
             ly.pos[1] = ly.pos[1]
   
         ly.colors[ly.pos[0], ly.pos[1]] = electric
 
-    animationLayer1 = Layer(floor.width, floor.height, move_dot, pos = [0, 0], lastpos = [0, 0]) 
-    floor.add_layer(animationLayer1)
-    animationLayer2 = Layer(floor.width, floor.height, move_dot, pos = [3, 3], lastpos = [3, 3]) 
-    floor.add_layer(animationLayer2)
+    for i in range(3):
+        animationLayer = Layer(floor.width, floor.height, move_dot, pos = [random.randint(0,10), random.randint(0,10)], lastpos = [0, 0]) 
+        floor.add_layer(animationLayer)
 
     while True:
         floor.tick()
