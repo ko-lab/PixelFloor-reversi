@@ -25,48 +25,58 @@ LED_STRIP      = neo.ws.WS2811_STRIP_GRB
 strip = neo.Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA,
     LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_STRIP)
 
-floor = lf.LedFloor(strip, board_height, board_width, flip_x=True)
+self.strip.begin()
 
-floor.clear()
-floor.axis_test()
-sleep(2)
-floor.clear()
+floor = lf.LedFloor(None,11,11, preview=False)
+lf.axis_test(floor)
+# win = graphics.GraphWin("My Circle", 1000, 1000)
+# c = graphics.Circle(graphics.Point(50,50), 10)
+# c.draw(win)
+#floor.draw()
+#floor.win.getMouse() # Pause to view result
+#floor.win.close()
+
+
+#floor.clear()
+#floor.axis_test()
+#sleep(2)
+#floor.clear()
 #sleep(1)
 #floor.demo() # rainbow demo, runs forever
 
 
-# create server (not started yet)
-server = oc.create_osc_server('10.90.154.80', 4559)
+# # create server (not started yet)
+# server = oc.create_osc_server('10.90.154.80', 4559)
 
-# register handlers for OSC messages
-# (More a proof of concept than anything at the moment....)
-def position_handler(addr, tags, data, source):
-    # takes an xy coordinate and draws a cross to that coordinate
-    global cross_color
-    x = int(round(data[0],0))
-    y = int(round(data[1],0))
+# # register handlers for OSC messages
+# # (More a proof of concept than anything at the moment....)
+# def position_handler(addr, tags, data, source):
+#     # takes an xy coordinate and draws a cross to that coordinate
+#     global cross_color
+#     x = int(round(data[0],0))
+#     y = int(round(data[1],0))
 
-    coord = [x, y]
-    color = cross_color #random.choice([lf.electric, lf.tiger, lf.teal, lf.lime])
+#     coord = [x, y]
+#     color = cross_color #random.choice([lf.electric, lf.tiger, lf.teal, lf.lime])
 
-    floor.clear()
-    floor.set(floor.get_column_coords(x), [color]*floor.height) 
-    floor.set(floor.get_row_coords(y), [color]*floor.width)   
-    floor.draw()
-
-
-def shoot_handler(addr, tags, data, source):
-    global cross_color
-    cross_color = lf.tiger
-    sleep(1)
-    cross_color = lf.electric
+#     floor.clear()
+#     floor.set(floor.get_column_coords(x), [color]*floor.height) 
+#     floor.set(floor.get_row_coords(y), [color]*floor.width)   
+#     floor.draw()
 
 
-cross_color = lf.electric
+# def shoot_handler(addr, tags, data, source):
+#     global cross_color
+#     cross_color = lf.tiger
+#     sleep(1)
+#     cross_color = lf.electric
+
+
+# cross_color = lf.electric
   
-server.addMsgHandler("/set", position_handler)
-server.addMsgHandler("/shoot", shoot_handler)
-oc.print_handlers(server) # Did it work?
+# server.addMsgHandler("/set", position_handler)
+# server.addMsgHandler("/shoot", shoot_handler)
+# oc.print_handlers(server) # Did it work?
 
-# Let's go!
-oc.start_osc_server(server)
+# # Let's go!
+# oc.start_osc_server(server)
